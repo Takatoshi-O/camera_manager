@@ -1,0 +1,40 @@
+menu "Camera Configuration"
+
+    choice CAMERA_BOARD
+
+        prompt "Camera Board"
+        default CAMERA_BOARD_XIAO_ESP32_S3_SENSE
+
+        config CAMERA_BOARD_XIAO_ESP32_S3_SENSE
+            bool "XIAO ESP32-S3 Sense"
+
+        config CAMERA_BOARD_FREENOVE_ESP32_S3_WROOM1
+            bool "Freenove ESP32-S3 WROOM1"
+
+    endchoice
+
+    config CAMERA_FB_COUNT
+        int "Camera framebuffer count"
+        default 2
+        range 1 4
+
+    config CAMERA_XCLK_FREQ
+        int "Camera XCLK frequency"
+        default 20000000
+
+    choice CAMERA_FRAME_SIZE
+        prompt "Camera frame size"
+        default CAMERA_FRAME_SIZE_QVGA
+
+        config CAMERA_FRAME_SIZE_QQVGA
+            bool "QQVGA (160x120)"
+
+        config CAMERA_FRAME_SIZE_QVGA
+            bool "QVGA (320x240)"
+
+        config CAMERA_FRAME_SIZE_VGA
+            bool "VGA (640x480)"
+
+    endchoice
+
+endmenu

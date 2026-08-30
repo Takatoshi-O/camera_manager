@@ -1,0 +1,13 @@
+idf_component_register(
+    SRCS 
+        "src/camera_manager.c"
+        "src/camera_yuv_query.c"
+        "src/camera_color.c"
+    INCLUDE_DIRS 
+        "include"
+    PRIV_INCLUDE_DIRS
+        "."
+    REQUIRES
+        esp32-camera
+        nvs_manager
+)
