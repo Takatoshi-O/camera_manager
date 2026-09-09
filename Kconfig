@@ -22,6 +22,53 @@ menu "Camera Configuration"
         int "Camera XCLK frequency"
         default 20000000
 
+    menu "Camera Image Control"
+
+        config CAMERA_AUTO_WHITE_BALANCE
+            bool "Enable automatic white balance"
+            default y
+        
+        choice CAMERA_WHITE_BALANCE_MODE
+            prompt "Manual white balance"
+            default CAMERA_WB_SUNNY
+            depends on !CAMERA_AUTO_WHITE_BALANCE
+        
+            config CAMERA_WB_SUNNY
+                bool "Sunny"
+            
+            config CAMERA_WB_CLOUDY
+                bool "Cloudy"
+            
+            config CAMERA_WB_OFFICE
+                bool "Office"
+            
+            config CAMERA_WB_HOME
+                bool "Home"
+            
+        endchoice
+            
+            
+        config CAMERA_AUTO_EXPOSURE
+            bool "Enable automatic exposure"
+            default y
+        
+        config CAMERA_EXPOSURE_VALUE
+            int "Manual exposure value" if !CAMERA_AUTO_EXPOSURE
+            default 200
+            range 0 1200
+        
+        
+        config CAMERA_AUTO_GAIN
+            bool "Enable automatic gain"
+            default y
+        
+        config CAMERA_GAIN
+            int "Manual gain" if !CAMERA_AUTO_GAIN
+            default 0
+            range 0 64
+        
+    endmenu
+
     choice CAMERA_FRAME_SIZE
         prompt "Camera frame size"
         default CAMERA_FRAME_SIZE_QVGA

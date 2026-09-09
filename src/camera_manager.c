@@ -94,6 +94,105 @@ void camera_get_frame_size(int *out_width, int *out_height)
     *out_height = CAM_SRC_H;
 }
 
+static esp_err_t camera_apply_sensor_config(void)
+{
+    sensor_t *sensor = esp_camera_sensor_get();
+    ESP_RETURN_ON_FALSE(
+        sensor != NULL,
+        ESP_FAIL,
+        TAG,
+        "camera sensor not found"
+    );
+
+    /* ========================================================
+     * White Balance
+     * ======================================================== */
+
+#ifdef CONFIG_CAMERA_AUTO_WHITE_BALANCE
+
+    if (sensor->set_whitebal(sensor, 1) != 0 ||
+        sensor->set_wb_mode(sensor, 0) != 0) {
+        ESP_LOGE(TAG, "failed to enable auto white balance");
+        return ESP_FAIL;
+    }
+
+    ESP_LOGI(TAG, "white balance: auto");
+
+#else
+
+    if (sensor->set_whitebal(sensor, 1) != 0 ||
+        sensor->set_wb_mode(sensor, CAM_WB_MODE) != 0) {
+        ESP_LOGE(TAG, "failed to set manual white balance");
+        return ESP_FAIL;
+    }
+
+    ESP_LOGI(TAG, "white balance: manual mode=%d", CAM_WB_MODE);
+
+#endif
+
+
+    /* ========================================================
+     * Exposure
+     * ======================================================== */
+
+#ifdef CONFIG_CAMERA_AUTO_EXPOSURE
+
+    if (sensor->set_exposure_ctrl(sensor, 1) != 0) {
+        ESP_LOGE(TAG, "failed to enable auto exposure");
+        return ESP_FAIL;
+    }
+
+    ESP_LOGI(TAG, "exposure: auto");
+
+#else
+
+    if (sensor->set_exposure_ctrl(sensor, 0) != 0 ||
+        sensor->set_aec_value(sensor, CONFIG_CAMERA_EXPOSURE_VALUE) != 0) {
+        ESP_LOGE(TAG, "failed to set manual exposure");
+        return ESP_FAIL;
+    }
+
+    ESP_LOGI(
+        TAG,
+        "exposure: manual value=%d",
+        CONFIG_CAMERA_EXPOSURE_VALUE
+    );
+
+#endif
+
+
+    /* ========================================================
+     * Gain
+     * ======================================================== */
+
+#ifdef CONFIG_CAMERA_AUTO_GAIN
+
+    if (sensor->set_gain_ctrl(sensor, 1) != 0) {
+        ESP_LOGE(TAG, "failed to enable auto gain");
+        return ESP_FAIL;
+    }
+
+    ESP_LOGI(TAG, "gain: auto");
+
+#else
+
+    if (sensor->set_gain_ctrl(sensor, 0) != 0 ||
+        sensor->set_agc_gain(sensor, CONFIG_CAMERA_GAIN) != 0) {
+        ESP_LOGE(TAG, "failed to set manual gain");
+        return ESP_FAIL;
+    }
+
+    ESP_LOGI(
+        TAG,
+        "gain: manual value=%d",
+        CONFIG_CAMERA_GAIN
+    );
+
+#endif
+
+    return ESP_OK;
+}
+
 esp_err_t camera_init(const camera_config_t *config)
 {
     ESP_RETURN_ON_FALSE(config != NULL, ESP_ERR_INVALID_ARG, TAG, "config is NULL");
@@ -109,6 +208,19 @@ esp_err_t camera_init(const camera_config_t *config)
 
     ESP_RETURN_ON_ERROR(esp_camera_init(config), TAG, "esp_camera_init failed");
 
+    esp_err_t ret = camera_apply_sensor_config();
+
+    sensor_t *sensor = esp_camera_sensor_get();
+    if (sensor != NULL) {
+        sensor->set_saturation(sensor, 4);
+        sensor->set_ae_level(sensor, -2);
+    }
+
+    if (ret != ESP_OK) {
+        esp_camera_deinit();
+        return ret;
+    }
+    
     s_initialized = true;
     return ESP_OK;
 }

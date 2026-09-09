@@ -98,6 +98,26 @@
 
 #endif
 
+/* ============================================================
+ * ホワイトバランス
+ * ============================================================ */
+
+#if defined(CONFIG_CAMERA_WB_SUNNY)
+    #define CAM_WB_MODE 1
+
+#elif defined(CONFIG_CAMERA_WB_CLOUDY)
+    #define CAM_WB_MODE 2
+
+#elif defined(CONFIG_CAMERA_WB_OFFICE)
+    #define CAM_WB_MODE 3
+
+#elif defined(CONFIG_CAMERA_WB_HOME)
+    #define CAM_WB_MODE 4
+
+#else
+    #define CAM_WB_MODE 0
+#endif
+
 /* ----------------------------------------------------
  * KconfigのCamera Frame Sizeから設定を決定
  * ---------------------------------------------------- */
