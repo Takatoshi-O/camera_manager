@@ -28,12 +28,31 @@
 
 `idf.py menuconfig` の **Component config -> Camera Configuration** から設定できます。
 
+### 基本設定
+
 | 項目 | デフォルト | 目的 |
 |---|---:|---|
 | Camera board | XIAO ESP32-S3 Sense | ボードごとのカメラGPIOを選択 |
 | `CAMERA_FB_COUNT` | 2 | カメラのフレームバッファ数 |
 | `CAMERA_XCLK_FREQ` | 20000000 | カメラXCLK周波数(Hz) |
 | Camera frame size | QVGA | QQVGA / QVGA / VGAを選択 |
+
+### 画質設定
+
+| 項目 | デフォルト | 目的 |
+|---|---:|---|
+| `CAMERA_AUTO_WHITE_BALANCE` | on | 自動ホワイトバランスを使用 |
+| `Manual white balance` | Sunny | AWB無効時のホワイトバランスモード |
+| `CAMERA_SATURATION` | 4 | 彩度を設定 |
+| `CAMERA_AUTO_EXPOSURE` | on | 自動露出を使用 |
+| `CAMERA_AE_LEVEL` | -2 | 自動露出時の目標明るさを調整 |
+| `CAMERA_EXPOSURE_VALUE` | 200 | 自動露出無効時の露出値 |
+| `CAMERA_AUTO_GAIN` | on | 自動ゲイン制御を使用 |
+| `CAMERA_GAIN` | 0 | 自動ゲイン無効時のゲイン値 |
+
+`CAMERA_AE_LEVEL` は自動露出が有効な場合のみ使用されます。
+`CAMERA_EXPOSURE_VALUE` は自動露出が無効な場合のみ使用されます。
+同様に、`CAMERA_GAIN` は自動ゲインが無効な場合のみ使用されます。
 
 ## 初期化の流れ
 

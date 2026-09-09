@@ -130,6 +130,17 @@ static esp_err_t camera_apply_sensor_config(void)
 
 #endif
 
+    /* ========================================================
+     * Saturation
+     * ======================================================== */
+
+    if (sensor->set_saturation(sensor, CONFIG_CAMERA_SATURATION) != 0) {
+        ESP_LOGE(TAG, "failed to set saturation");
+        return ESP_FAIL;
+    }
+
+    ESP_LOGI(TAG, "saturation: %d", CONFIG_CAMERA_SATURATION);
+
 
     /* ========================================================
      * Exposure
@@ -137,12 +148,17 @@ static esp_err_t camera_apply_sensor_config(void)
 
 #ifdef CONFIG_CAMERA_AUTO_EXPOSURE
 
-    if (sensor->set_exposure_ctrl(sensor, 1) != 0) {
+    if (sensor->set_exposure_ctrl(sensor, 1) != 0 ||
+        sensor->set_ae_level(sensor, CONFIG_CAMERA_AE_LEVEL) != 0) {
         ESP_LOGE(TAG, "failed to enable auto exposure");
         return ESP_FAIL;
     }
 
-    ESP_LOGI(TAG, "exposure: auto");
+    ESP_LOGI(
+        TAG,
+        "exposure: auto, ae level=%d",
+        CONFIG_CAMERA_AE_LEVEL
+    );
 
 #else
 
@@ -209,12 +225,6 @@ esp_err_t camera_init(const camera_config_t *config)
     ESP_RETURN_ON_ERROR(esp_camera_init(config), TAG, "esp_camera_init failed");
 
     esp_err_t ret = camera_apply_sensor_config();
-
-    sensor_t *sensor = esp_camera_sensor_get();
-    if (sensor != NULL) {
-        sensor->set_saturation(sensor, 4);
-        sensor->set_ae_level(sensor, -2);
-    }
 
     if (ret != ESP_OK) {
         esp_camera_deinit();

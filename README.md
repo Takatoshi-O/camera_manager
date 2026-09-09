@@ -24,16 +24,37 @@ The current configuration supports:
 
 The default camera configuration produced by `camera_get_default_config()` uses YUV422 pixel format, the Kconfig-selected frame size, PSRAM frame buffers, and `CONFIG_CAMERA_FB_COUNT` frame buffers.
 
-## Kconfig
+## Kconfig Configuration
 
-Open `idf.py menuconfig` and select **Component config -> Camera Configuration**.
+Camera settings can be configured from:
 
-| Option | Default | Purpose |
+**Component config -> Camera Configuration**
+
+### Basic Configuration
+
+| Option | Default | Description |
 |---|---:|---|
-| Camera board | XIAO ESP32-S3 Sense | Selects the board-specific camera GPIO mapping |
+| Camera board | XIAO ESP32-S3 Sense | Selects the camera GPIO configuration |
 | `CAMERA_FB_COUNT` | 2 | Number of camera frame buffers |
 | `CAMERA_XCLK_FREQ` | 20000000 | Camera XCLK frequency in Hz |
-| Camera frame size | QVGA | Selects QQVGA, QVGA, or VGA |
+| Camera frame size | QVGA | Selects QQVGA / QVGA / VGA |
+
+### Image Configuration
+
+| Option | Default | Description |
+|---|---:|---|
+| `CAMERA_AUTO_WHITE_BALANCE` | on | Enables automatic white balance |
+| Manual white balance | Sunny | White balance mode used when AWB is disabled |
+| `CAMERA_SATURATION` | 4 | Adjusts color saturation |
+| `CAMERA_AUTO_EXPOSURE` | on | Enables automatic exposure |
+| `CAMERA_AE_LEVEL` | -2 | Adjusts the target brightness for automatic exposure |
+| `CAMERA_EXPOSURE_VALUE` | 200 | Manual exposure value |
+| `CAMERA_AUTO_GAIN` | on | Enables automatic gain control |
+| `CAMERA_GAIN` | 0 | Manual gain value |
+
+`CAMERA_AE_LEVEL` is used only when automatic exposure is enabled.
+`CAMERA_EXPOSURE_VALUE` is used only when automatic exposure is disabled.
+Similarly, `CAMERA_GAIN` is used only when automatic gain control is disabled.
 
 ## Initialization flow
 

@@ -89,13 +89,17 @@ esp_err_t camera_color_init(void)
     return ESP_OK;
 }
 
-static inline uint32_t squared_distance(const yuv_ref_t *a, uint8_t y, uint8_t u, uint8_t v)
+static inline uint32_t squared_distance(camera_color_id_t color, const yuv_ref_t *a, uint8_t y, uint8_t u, uint8_t v)
 {
     int dy = (int)a->y - (int)y;
     int du = (int)a->u - (int)u;
     int dv = (int)a->v - (int)v;
-    return (uint32_t)(dy * dy + du * du + dv * dv);
+    return (uint32_t)(dy * dy / 4 + du * du + dv * dv);
 }
+
+#define WHITE_Y_MIN             180
+#define WHITE_UV_THRESHOLD      15
+#define WHITE_UV_THRESHOLD_SQ   (WHITE_UV_THRESHOLD * WHITE_UV_THRESHOLD)
 
 camera_color_id_t camera_color_classify(uint8_t camera_id, uint8_t y, uint8_t u, uint8_t v)
 {
@@ -105,18 +109,29 @@ camera_color_id_t camera_color_classify(uint8_t camera_id, uint8_t y, uint8_t u,
 
     const camera_color_ref_set_t *ref_set = &s_reference[camera_id];
 
+    const yuv_ref_t *white = &ref_set->colors[CAMERA_COLOR_WHITE];
+
+    int du = (int)u - (int)white->u;
+    int dv = (int)v - (int)white->v;
+
+    uint32_t uv_dist_sq = (uint32_t)(du * du + dv * dv);
+
+    if (y >= WHITE_Y_MIN && uv_dist_sq <= WHITE_UV_THRESHOLD_SQ) 
+        return CAMERA_COLOR_WHITE;
+
     camera_color_id_t best_color = CAMERA_COLOR_UNKNOWN;
     uint32_t best_dist = UINT32_MAX;
 
     for (int i = 1; i < CAMERA_COLOR_MAX; i++) {
-        uint32_t dist = squared_distance(&ref_set->colors[i], y, u, v);
-        if (dist < best_dist) {
+        uint32_t dist = squared_distance((camera_color_id_t)i, &ref_set->colors[i], y, u, v);
+        if (dist < best_dist) 
+        {
             best_dist = dist;
             best_color = (camera_color_id_t)i;
         }
     }
 
-    if (best_dist > s_threshold_sq) {
+    if (best_dist > s_threshold_sq && best_color != CAMERA_COLOR_WHITE) {
         return CAMERA_COLOR_UNKNOWN;
     }
 

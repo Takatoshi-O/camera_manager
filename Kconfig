@@ -44,29 +44,40 @@ menu "Camera Configuration"
             
             config CAMERA_WB_HOME
                 bool "Home"
-            
+        
         endchoice
-            
-            
+
+        config CAMERA_SATURATION
+            int "Camera saturation"
+            default 4
+            range -4 4 
+
         config CAMERA_AUTO_EXPOSURE
             bool "Enable automatic exposure"
             default y
-        
+
+        config CAMERA_AE_LEVEL
+            int "Automatic exposure level"
+            default -2
+            range -2 2 
+            depends on CAMERA_AUTO_EXPOSURE
+
         config CAMERA_EXPOSURE_VALUE
-            int "Manual exposure value" if !CAMERA_AUTO_EXPOSURE
+            int "Manual exposure value"
             default 200
             range 0 1200
-        
-        
+            depends on !CAMERA_AUTO_EXPOSURE
+
         config CAMERA_AUTO_GAIN
             bool "Enable automatic gain"
             default y
-        
+
         config CAMERA_GAIN
-            int "Manual gain" if !CAMERA_AUTO_GAIN
+            int "Manual gain"
             default 0
             range 0 64
-        
+            depends on !CAMERA_AUTO_GAIN
+
     endmenu
 
     choice CAMERA_FRAME_SIZE
